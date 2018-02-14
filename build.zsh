@@ -14,13 +14,14 @@ else
 	CONTAINER="c6-rpmbuild-${SPEC%.spec}";
 
 	echo "Executing '$BUILD_CMD' in new container named '$CONTAINER'";
-	eval "docker run \
+	CMD="docker run \
 		-ti \
 		--name $CONTAINER \
 		-v $RPMBUILDROOT:/home/rpmbuilder/rpmbuild \
 		-v /var/cache/yum:/var/cache/yum \
 		local/rpmbuild-c6 \
-		$BUILD_CMD 2>&1";
+		$BUILD_CMD";
+	$CMD;
 
 	# Change ownership back to this user, as my build-spec changes
 	# needed to chown the $RPMBUILDROOT to rpmbuilder in order to run properly	
