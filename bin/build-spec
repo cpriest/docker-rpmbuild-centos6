@@ -65,16 +65,18 @@ if [[ $# -eq 0 ]]; then
     exit 1
 fi
 
+sudo perl -pi -e 's/keepcache=0/keepcache=1/g' /etc/yum.conf
+
 # Yum cleaning
-sudo yum clean all
-sudo rm -rf rm -rf /var/cache/yum
+#sudo yum clean all 2>&1
+#sudo rm -rf rm -rf /var/cache/yum
 
 cd ~/rpmbuild
 
 ## Install RPMS
 if [ -n "$rpmfiles" ]; then
     echo "Installing RPMs ..."
-    sudo yum -y localinstall $rpmfiles
+    sudo yum -y localinstall $rpmfiles 2>&1
     rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
     echo "Done installing built RPMs"
 fi
@@ -85,10 +87,12 @@ do
     echo "BUILDING: $SPEC ..."
     cd ~/rpmbuild
 
-    sudo yum-builddep -y "$SPEC"
+    sudo yum-builddep -y "$SPEC" 2>&1
     rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 
-    rpmbuild --clean -ba "$SPEC"
+	sudo chown rpmbuilder: ~/rpmbuild -R;	
+
+    rpmbuild --clean -ba "$SPEC" 2>&1
     rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 done
 
